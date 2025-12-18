@@ -1,0 +1,3 @@
+[submodule "deps/cgal"]
+	path = deps/cgal
+	url = https://github.com/CGAL/cgal

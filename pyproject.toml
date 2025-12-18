@@ -1,0 +1,56 @@
+[build-system]
+requires = [
+    "scikit-build-core >=0.4.3",
+    "nanobind >=1.3.2"
+    ]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "geoph"
+version = "0.0.1"
+description = "A Delaunay-Rips persistent homology library"
+readme = "README.md"
+requires-python = ">=3.9"
+
+[project.urls]
+Homepage = "https://github.com/MClemot/GeoPH"
+
+[tool.scikit-build]
+# Protect the configuration against future changes in scikit-build-core
+minimum-version = "0.4"
+
+# Setuptools-style build caching in a local directory
+build-dir = "build/{wheel_tag}"
+
+# Build stable ABI wheels for CPython 3.12+
+wheel.py-api = "cp312"
+
+[tool.cibuildwheel]
+# Necessary to see build output from the actual compilation
+build-verbosity = 1
+skip = "cp*t-*"
+
+# Run the package tests using `pytest`
+test-requires = ["pytest", "numpy"]
+test-command = "pytest {package}/python/tests"
+
+[tool.cibuildwheel.linux]
+build = "cp*-manylinux_x86_64"
+before-all = [
+    "curl -LO \"https://archives.boost.io/release/1.89.0/source/boost_1_89_0.tar.gz\"",
+    "tar xf boost_1_89_0.tar.gz",
+    "cd boost_1_89_0",
+    "./bootstrap.sh",
+    "cp -r boost /usr/local/include/",
+    "yum install -y eigen3-devel mpfr-devel gmp-devel tbb-devel"]
+
+[tool.cibuildwheel.windows]
+build = "cp*-win_amd64"
+environment = { Boost_ROOT='D:\\a\\GeoPH\\GeoPH\\boost_1_89_0'}
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel} --add-path D:\\a\\GeoPH\\GeoPH\\deps\\auxiliary\\gmp\\lib"
+
+[tool.cibuildwheel.macos]
+build = "cp*-*"
+environment = { MACOSX_DEPLOYMENT_TARGET="15.0"}
+before-all = "brew install cgal"
