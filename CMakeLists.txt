@@ -68,7 +68,6 @@ else()
     target_link_libraries (geoph_impl PUBLIC Eigen3::Eigen)
 endif()
 
-set(CGAL_DIR "deps/cgal/")
 find_package(CGAL REQUIRED)
 target_include_directories (geoph_impl PUBLIC ${CGAL_INCLUDE_DIR})
 target_link_libraries (geoph_impl PUBLIC ${CGAL_LIBRARIES})

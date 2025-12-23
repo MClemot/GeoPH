@@ -1,6 +1,6 @@
 # GeoPH: Delaunay–Rips persistence diagrams
 
-This repository contains the code for the manuscript [*Delaunay–Rips filtration: a study and an algorithm*](https://arxiv.org).
+This repository contains the code for the manuscript [*Delaunay–Rips filtration: a study and an algorithm*](https://arxiv.org/abs/2512.17382).
 
 It also contains the code for the planar Rips and Delaunay--Rips persistence algorithm described in [*Topological Autoencoders++: Fast and Accurate Cycle-Aware Dimensionality Reduction*](https://arxiv.org/abs/2502.20215).
 

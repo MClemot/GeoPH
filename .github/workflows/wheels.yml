@@ -42,6 +42,8 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://archives.boost.io/release/1.89.0/source/boost_1_89_0.zip" -OutFile "boost.zip"
           Expand-Archive -Path "boost.zip" -DestinationPath "."
+          Invoke-WebRequest -Uri "https://github.com/CGAL/cgal/releases/download/v6.0.2/CGAL-6.0.2-library.zip" -OutFile "CGAL.zip"
+          Expand-Archive -Path "CGAL.zip" -DestinationPath "."
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2

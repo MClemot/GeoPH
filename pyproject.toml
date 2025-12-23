@@ -42,11 +42,11 @@ before-all = [
     "cd boost_1_89_0",
     "./bootstrap.sh",
     "cp -r boost /usr/local/include/",
-    "yum install -y eigen3-devel mpfr-devel gmp-devel tbb-devel"]
+    "yum install -y CGAL-devel eigen3-devel mpfr-devel gmp-devel tbb-devel"]
 
 [tool.cibuildwheel.windows]
 build = "cp*-win_amd64"
-environment = { Boost_ROOT='D:\\a\\GeoPH\\GeoPH\\boost_1_89_0'}
+environment = { Boost_ROOT='D:\\a\\GeoPH\\GeoPH\\boost_1_89_0', CGAL_DIR='D:\\a\\GeoPH\\GeoPH\\CGAL-6.0.2'}
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel} --add-path D:\\a\\GeoPH\\GeoPH\\deps\\auxiliary\\gmp\\lib"
 
