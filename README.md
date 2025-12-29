@@ -25,6 +25,10 @@ This implementation also uses and contains the following codes:
 This code can be used as a header-only C++ library. Copy and include the `geoPHUtils.h` and `geoPH{2,3,d}.h` files (in the `src` directory) in your project. Then use the classes `DRPersistence{2,3,D}`.
 
 ## Python
+### Install with PyPI
+```pip install geoph```
+
+### Install yourself
 
 Execute
 `pip wheel .` in the project root
