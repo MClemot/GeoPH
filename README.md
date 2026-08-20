@@ -1,8 +1,10 @@
 # GeoPH: Delaunay–Rips persistence diagrams
 
+![PyPI - Version](https://img.shields.io/pypi/v/geoph)
+
 This repository contains the code for the manuscript [*Delaunay–Rips filtration: a study and an algorithm*](https://arxiv.org/abs/2512.17382).
 
-It also contains the code for the planar Rips and Delaunay--Rips persistence algorithm described in [*Topological Autoencoders++: Fast and Accurate Cycle-Aware Dimensionality Reduction*](https://arxiv.org/abs/2502.20215).
+It also contains the code for the planar Rips and Delaunay–Rips persistence algorithm described in [*Topological Autoencoders++: Fast and Accurate Cycle-Aware Dimensionality Reduction*](https://arxiv.org/abs/2502.20215).
 
 ## Dependencies
 
@@ -12,7 +14,7 @@ The following dependencies are required:
 * Eigen3
 
 For multi-threading, the following dependencies are additionally required:
-* Boost >= 1.83
+* Boost >= 1.84
 * OpenMP
 * TBB
 

@@ -13,20 +13,23 @@
 namespace nb = nanobind;
 using namespace nb::literals;
 
-using PointCloud2 = nb::ndarray<double, nb::shape<-1, 2>, nb::device::cpu>;
-using PointCloud3 = nb::ndarray<double, nb::shape<-1, 3>, nb::device::cpu>;
-using PointCloudD = nb::ndarray<double, nb::shape<-1,-1>, nb::device::cpu>;
+using PointCloud2 = nb::ndarray<double, nb::shape<-1, 2>, nb::c_contig, nb::device::cpu>;
+using PointCloud3 = nb::ndarray<double, nb::shape<-1, 3>, nb::c_contig, nb::device::cpu>;
+using PointCloudD = nb::ndarray<double, nb::shape<-1,-1>, nb::c_contig, nb::device::cpu>;
 
-using PDiagramPoint = std::pair<double,double>;
-using PDiagram      = std::vector<PDiagramPoint>;
-using MDPDiagram    = std::vector<PDiagram>;
+using PersistenceDiagramPoint = std::array<double,2>;
+using PersistenceDiagram      = std::vector<PersistenceDiagramPoint>;
+using MDPersistenceDiagram    = std::vector<PersistenceDiagram>;
 
-using PPair         = std::pair<gph::Simplex, gph::Simplex>;
-using PPairs        = std::vector<PPair>;
-using MDPPairs      = std::vector<PPairs>;
+using ContiguousPersistenceDiagram   = nb::ndarray<double, nb::numpy, nb::shape<-1,2>>;
+using MDContiguousPersistenceDiagram = std::vector<ContiguousPersistenceDiagram>;
 
-using GudhiPDiagramPoint = std::pair<unsigned,std::pair<double,double>>;
-using GudhiPDiagram      = std::vector<GudhiPDiagramPoint>;
+using PersistencePair         = std::pair<gph::Simplex, gph::Simplex>;
+using PersistencePairs        = std::vector<PersistencePair>;
+using MDPersistencePairs      = std::vector<PersistencePairs>;
+
+using GudhiPersistenceDiagramPoint = std::pair<unsigned,std::pair<double,double>>;
+using GudhiPersistenceDiagram      = std::vector<GudhiPersistenceDiagramPoint>;
 
 using Generators1 = std::vector<gph::Generator1>;
 using Generators2 = std::vector<gph::Generator2>;
@@ -36,17 +39,30 @@ gph::Simplex sorted(gph::Simplex s) {
   return s;
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, MDPDiagram &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, MDPersistenceDiagram &output) {
   output.resize(diagram.size());
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     output[dim].reserve(diagram[dim].size());
     for (auto const& [b,d] : diagram[dim])
-      output[dim].emplace_back(b.second, d.second);
+      output[dim].push_back({b.second, d.second});
     std::sort(output[dim].begin(), output[dim].end());
   }
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, MDPPairs &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, MDContiguousPersistenceDiagram &output) {
+  MDPersistenceDiagram temp;
+  convert(diagram, temp);
+  output.resize(diagram.size());
+  for (unsigned dim = 0; dim < diagram.size(); ++dim) {
+    auto *data = new PersistenceDiagram(std::move(temp[dim]));
+    nb::capsule owner(data, [](void *p) noexcept {
+        delete static_cast<PersistenceDiagram *>(p);
+    });
+    output[dim] = ContiguousPersistenceDiagram(data->empty() ? nullptr : data->data()->data(), {data->size(), 2}, owner);
+  }
+}
+
+inline void convert(gph::MultidimensionalDiagram const& diagram, MDPersistencePairs &output) {
   output.resize(diagram.size());
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     output[dim].reserve(diagram[dim].size());
@@ -57,11 +73,11 @@ inline void convert(gph::MultidimensionalDiagram const& diagram, MDPPairs &outpu
   }
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, GudhiPDiagram &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, GudhiPersistenceDiagram &output) {
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     for (auto const& [b,d] : diagram[dim])
       output.emplace_back(dim, std::make_pair(b.second, d.second));
-    std::sort(output.begin(), output.end(), [](GudhiPDiagramPoint const& a, GudhiPDiagramPoint const& b) {
+    std::sort(output.begin(), output.end(), [](GudhiPersistenceDiagramPoint const& a, GudhiPersistenceDiagramPoint const& b) {
       return a.second < b.second;
     });
   }
@@ -100,10 +116,12 @@ public:
     return res;
   }
 
-  [[nodiscard]] std::variant<MDPDiagram, GudhiPDiagram> getPersistenceDiagram(std::string const& format) const {
+  [[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> getPersistenceDiagram(std::string const& format) const {
     if (format == "gudhi")
-      return get<GudhiPDiagram>();
-    return get<MDPDiagram>();
+      return get<GudhiPersistenceDiagram>();
+    if (format == "contiguous")
+      return get<MDContiguousPersistenceDiagram>();
+    return get<MDPersistenceDiagram>();
   }
 
 private:
@@ -126,10 +144,12 @@ Diagram delaunayRipsPersistence(PointCloudD const& pc) {
   return res;
 }
 
-[[nodiscard]] std::variant<MDPDiagram, GudhiPDiagram> delaunayRipsPersistenceDiagram(PointCloudD const& pc, std::string const& format) {
+[[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> delaunayRipsPersistenceDiagram(PointCloudD const& pc, std::string const& format) {
   if (format == "gudhi")
-    return delaunayRipsPersistence<GudhiPDiagram>(pc);
-  return delaunayRipsPersistence<MDPDiagram>(pc);
+    return delaunayRipsPersistence<GudhiPersistenceDiagram>(pc);
+  if (format == "contiguous")
+    return delaunayRipsPersistence<MDContiguousPersistenceDiagram>(pc);
+  return delaunayRipsPersistence<MDPersistenceDiagram>(pc);
 }
 
 template <typename Diagram>
@@ -142,10 +162,12 @@ Diagram ripsPersistence2(PointCloud2 const& pc) {
   return res;
 }
 
-[[nodiscard]] std::variant<MDPDiagram, GudhiPDiagram> ripsPersistenceDiagram2(PointCloud2 const& pc, std::string const& format) {
+[[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> ripsPersistenceDiagram2(PointCloud2 const& pc, std::string const& format) {
   if (format == "gudhi")
-    return ripsPersistence2<GudhiPDiagram>(pc);
-  return ripsPersistence2<MDPDiagram>(pc);
+    return ripsPersistence2<GudhiPersistenceDiagram>(pc);
+  if (format == "contiguous")
+    return ripsPersistence2<MDContiguousPersistenceDiagram>(pc);
+  return ripsPersistence2<MDPersistenceDiagram>(pc);
 }
 
 Generators1 delaunayRipsPersistenceGenerators2(PointCloud2 const& pc) {
@@ -185,7 +207,7 @@ NB_MODULE(geoph_impl, m) {
         "format"_a = "default");
 
   m.def("ripsPersistencePairs2",
-        &ripsPersistence2<MDPPairs>,
+        &ripsPersistence2<MDPersistencePairs>,
         "X"_a);
 
   m.def("ripsPersistenceGenerators2",
@@ -206,11 +228,11 @@ NB_MODULE(geoph_impl, m) {
         "format"_a = "default");
 
   m.def("delaunayRipsPersistencePairs",
-        &delaunayRipsPersistence<MDPPairs>,
+        &delaunayRipsPersistence<MDPersistencePairs>,
         "X"_a);
 
   nb::class_<GeoPHD>(m, "GeoPHD")
       .def(nb::init<PointCloudD>(), "X"_a)
       .def("delaunayRipsPersistenceDiagram", &GeoPHD::getPersistenceDiagram, "format"_a="default")
-      .def("delaunayRipsPersistencePairs", &GeoPHD::get<MDPPairs>);
+      .def("delaunayRipsPersistencePairs", &GeoPHD::get<MDPersistencePairs>);
 }
