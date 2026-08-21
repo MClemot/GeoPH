@@ -42,7 +42,7 @@ before-all = [
     "cd boost_1_89_0",
     "./bootstrap.sh",
     "cp -r boost /usr/local/include/",
-    "yum install -y CGAL-devel eigen3-devel mpfr-devel gmp-devel tbb-devel"]
+    "yum install -y CGAL-devel eigen3-devel mpfr-devel gmp-devel"]
 
 [tool.cibuildwheel.windows]
 build = "cp*-win_amd64"

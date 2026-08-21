@@ -1,6 +1,6 @@
 # GeoPH: Delaunay–Rips persistence diagrams
 
-![PyPI - Version](https://img.shields.io/pypi/v/geoph)
+[![PyPI - Version](https://img.shields.io/pypi/v/geoph?logo=python)](https://pypi.org/project/geoph/)
 
 This repository contains the code for the manuscript [*Delaunay–Rips filtration: a study and an algorithm*](https://arxiv.org/abs/2512.17382).
 
