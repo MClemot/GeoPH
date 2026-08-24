@@ -7,10 +7,10 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "geoph"
-version = "0.1"
+version = "0.1.1"
 description = "A Delaunay-Rips persistent homology library"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.urls]
 Homepage = "https://github.com/MClemot/GeoPH"

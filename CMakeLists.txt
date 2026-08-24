@@ -20,7 +20,7 @@ else()
     set(DEV_MODULE Development.Module)
 endif()
 
-find_package(Python 3.8
+find_package(Python 3.10
     REQUIRED COMPONENTS Interpreter ${DEV_MODULE}
     OPTIONAL_COMPONENTS Development.SABIModule)
 
