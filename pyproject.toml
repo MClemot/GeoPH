@@ -7,7 +7,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "geoph"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Delaunay-Rips persistent homology library"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,8 +22,8 @@ minimum-version = "0.4"
 # Setuptools-style build caching in a local directory
 build-dir = "build/{wheel_tag}"
 
-# Build stable ABI wheels for CPython 3.12+
-wheel.py-api = "cp312"
+# Build stable ABI wheels for CPython 3.14+
+wheel.py-api = "cp314"
 
 [tool.cibuildwheel]
 # Necessary to see build output from the actual compilation

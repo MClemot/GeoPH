@@ -131,14 +131,17 @@ private:
 template <typename Diagram>
 Diagram delaunayRipsPersistence(PointCloudD const& pc) {
   gph::MultidimensionalDiagram diagram;
-  if (pc.shape(1) == 2) {
-    gph::DRPersistence2 frpd(pc.data(), pc.shape(0));
-    frpd.computeDelaunayRips0And1Persistence(diagram);
+  {
+    nb::gil_scoped_release release;
+    if (pc.shape(1) == 2) {
+      gph::DRPersistence2 frpd(pc.data(), pc.shape(0));
+      frpd.computeDelaunayRips0And1Persistence(diagram);
+    }
+    else if (pc.shape(1) == 3)
+      gph::runDelaunayRipsPersistenceDiagram3(pc.data(), pc.shape(0), diagram);
+    else
+      findDimension(pc, diagram);
   }
-  else if (pc.shape(1) == 3)
-    gph::runDelaunayRipsPersistenceDiagram3(pc.data(), pc.shape(0), diagram);
-  else
-    findDimension(pc, diagram);
   Diagram res(0);
   convert(diagram, res);
   return res;
@@ -155,8 +158,11 @@ Diagram delaunayRipsPersistence(PointCloudD const& pc) {
 template <typename Diagram>
 Diagram ripsPersistence2(PointCloud2 const& pc) {
   gph::MultidimensionalDiagram diagram;
-  gph::DRPersistence2 frpd(pc.data(), pc.shape(0));
-  frpd.computeRips0And1Persistence(diagram);
+  {
+    nb::gil_scoped_release release;
+    gph::DRPersistence2 frpd(pc.data(), pc.shape(0));
+    frpd.computeRips0And1Persistence(diagram);
+  }
   Diagram res(0);
   convert(diagram, res);
   return res;
@@ -212,15 +218,18 @@ NB_MODULE(geoph_impl, m) {
 
   m.def("ripsPersistenceGenerators2",
         &ripsPersistenceGenerators2,
-        "X"_a);
+        "X"_a,
+        nb::call_guard<nb::gil_scoped_release>());
 
   m.def("delaunayRipsPersistenceGenerators2",
         &delaunayRipsPersistenceGenerators2,
-        "X"_a);
+        "X"_a,
+        nb::call_guard<nb::gil_scoped_release>());
 
   m.def("delaunayRipsPersistenceGenerators3",
         &delaunayRipsPersistenceGenerators3,
-        "X"_a);
+        "X"_a,
+        nb::call_guard<nb::gil_scoped_release>());
 
   m.def("delaunayRipsPersistenceDiagram",
         &delaunayRipsPersistenceDiagram,
@@ -232,7 +241,7 @@ NB_MODULE(geoph_impl, m) {
         "X"_a);
 
   nb::class_<GeoPHD>(m, "GeoPHD")
-      .def(nb::init<PointCloudD>(), "X"_a)
+      .def(nb::init<PointCloudD>(), "X"_a, nb::call_guard<nb::gil_scoped_release>())
       .def("delaunayRipsPersistenceDiagram", &GeoPHD::getPersistenceDiagram, "format"_a="default")
       .def("delaunayRipsPersistencePairs", &GeoPHD::get<MDPersistencePairs>);
 }

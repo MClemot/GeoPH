@@ -33,9 +33,9 @@ class DelaunayRipsPersistence(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         return self
 
-    def transform(self, X):
-        def func(x):
-            diags = delaunayRipsPersistenceDiagram(x, "contiguous")
-            return [diags[d] for d in self.homology_dimensions]
+    def __transform(self, x):
+        diags = delaunayRipsPersistenceDiagram(x, "contiguous")
+        return [diags[d] for d in self.homology_dimensions]
 
-        return Parallel(n_jobs=self.n_jobs)(delayed(func)(x) for x in X)
+    def transform(self, X):
+        return Parallel(n_jobs=self.n_jobs, prefer="threads")(delayed(self.__transform)(x) for x in X)
