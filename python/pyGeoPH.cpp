@@ -77,10 +77,10 @@ inline void convert(gph::MultidimensionalDiagram const& diagram, GudhiPersistenc
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     for (auto const& [b,d] : diagram[dim])
       output.emplace_back(dim, std::make_pair(b.second, d.second));
-    std::sort(output.begin(), output.end(), [](GudhiPersistenceDiagramPoint const& a, GudhiPersistenceDiagramPoint const& b) {
-      return a.second < b.second;
-    });
   }
+  std::sort(output.begin(), output.end(), [](GudhiPersistenceDiagramPoint const& a, GudhiPersistenceDiagramPoint const& b) {
+    return a.second < b.second;
+  });
 }
 
 constexpr unsigned DIM_MAX = 8;
