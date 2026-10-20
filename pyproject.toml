@@ -10,7 +10,7 @@ name = "geoph"
 version = "0.1.2"
 description = "A Delaunay-Rips persistent homology library"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 
 [project.urls]
 Homepage = "https://github.com/MClemot/GeoPH"

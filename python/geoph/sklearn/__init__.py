@@ -1,7 +1,9 @@
-from .. import *
+from .. import delaunayRipsPersistenceDiagram
 
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator, TransformerMixin
+
+__all__ = ["DelaunayRipsPersistence"]
 
 class DelaunayRipsPersistence(BaseEstimator, TransformerMixin):
     """
@@ -39,7 +41,7 @@ class DelaunayRipsPersistence(BaseEstimator, TransformerMixin):
 
     def __transform(self, x):
         diags = delaunayRipsPersistenceDiagram(x, "contiguous", self.reduced_homology)
-        return [diags[d] for d in self.homology_dimensions]
+        return [diags[d] if d < len(diags) else np.empty((0, 2)) for d in self.homology_dimensions]
 
     def transform(self, X):
         return Parallel(n_jobs=self.n_jobs, prefer="threads")(delayed(self.__transform)(x) for x in X)

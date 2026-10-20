@@ -3,6 +3,17 @@ from .geoph_impl import *
 
 __version__ = "0.1.2"
 
+__all__ = [
+    "GeoPHD",
+    "delaunayRipsPersistenceDiagram",
+    "delaunayRipsPersistencePairs",
+    "delaunayRipsPersistenceGenerators2",
+    "delaunayRipsPersistenceGenerators3",
+    "ripsPersistenceDiagram2",
+    "ripsPersistencePairs2",
+    "ripsPersistenceGenerators2",
+]
+
 def delaunayRipsPersistenceDiagram(X, format:str='default', reduced_homology:bool=True) -> list[list[tuple[float, float]]] | list[tuple[int, tuple[float, float]]]:
     """
     Computes Delaunay-Rips persistence diagram.
