@@ -3,6 +3,8 @@ from .. import delaunayRipsPersistenceDiagram
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator, TransformerMixin
 
+import numpy as np
+
 __all__ = ["DelaunayRipsPersistence"]
 
 class DelaunayRipsPersistence(BaseEstimator, TransformerMixin):
