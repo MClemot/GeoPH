@@ -76,23 +76,38 @@ diagram_1_delrips = [(0.1216552506059644, 0.15820875449860533),
                      (0.2675577001091691, 0.2787712562394375),
                      (0.2823196314450267, 0.3751676584265772)]
 
-rips_pairs = [[([-1], [2, 10]), ([-1], [26, 27]), ([-1], [20, 22]), ([-1], [1, 9]), ([-1], [8, 11]), ([-1], [22, 23]), ([-1], [7, 8]), ([-1], [11, 25]), ([-1], [16, 17]), ([-1], [24, 25]), ([-1], [19, 21]), ([-1], [17, 18]), ([-1], [3, 10]), ([-1], [27, 28]), ([-1], [30, 31]), ([-1], [20, 21]), ([-1], [2, 9]), ([-1], [13, 14]), ([-1], [5, 6]), ([-1], [23, 24]), ([-1], [5, 7]), ([-1], [14, 15]), ([-1], [29, 30]), ([-1], [26, 31]), ([-1], [3, 12]), ([-1], [15, 16]), ([-1], [0, 4]), ([-1], [18, 19]), ([-1], [12, 13]), ([-1], [4, 6]), ([-1], [7, 29])],
+rips_pairs = [[([-1], [2, 10]), ([-1], [26, 27]), ([-1], [20, 22]), ([-1], [1, 9]), ([-1], [8, 11]), ([-1], [22, 23]), ([-1], [7, 8]), ([-1], [11, 25]), ([-1], [16, 17]), ([-1], [24, 25]), ([-1], [19, 21]), ([-1], [17, 18]), ([-1], [3, 10]), ([-1], [27, 28]), ([-1], [30, 31]), ([-1], [20, 21]), ([-1], [2, 9]), ([-1], [13, 14]), ([-1], [5, 6]), ([-1], [23, 24]), ([-1], [5, 7]), ([-1], [14, 15]), ([-1], [29, 30]), ([-1], [26, 31]), ([-1], [3, 12]), ([-1], [15, 16]), ([-1], [0, 4]), ([-1], [18, 19]), ([-1], [12, 13]), ([-1], [4, 6]), ([-1], [7, 29]), ([-1],[-1])],
               [([14, 25], [15, 24]), ([0, 1], [3, 11]), ([28, 29], [28, 31])]]
 
-delrips_pairs = [[([-1], [2, 10]), ([-1], [26, 27]), ([-1], [20, 22]), ([-1], [1, 9]), ([-1], [8, 11]), ([-1], [22, 23]), ([-1], [7, 8]), ([-1], [11, 25]), ([-1], [16, 17]), ([-1], [24, 25]), ([-1], [19, 21]), ([-1], [17, 18]), ([-1], [3, 10]), ([-1], [27, 28]), ([-1], [30, 31]), ([-1], [20, 21]), ([-1], [2, 9]), ([-1], [13, 14]), ([-1], [5, 6]), ([-1], [23, 24]), ([-1], [5, 7]), ([-1], [14, 15]), ([-1], [29, 30]), ([-1], [26, 31]), ([-1], [3, 12]), ([-1], [15, 16]), ([-1], [0, 4]), ([-1], [18, 19]), ([-1], [12, 13]), ([-1], [4, 6]), ([-1], [7, 29])],
+delrips_pairs = [[([-1], [2, 10]), ([-1], [26, 27]), ([-1], [20, 22]), ([-1], [1, 9]), ([-1], [8, 11]), ([-1], [22, 23]), ([-1], [7, 8]), ([-1], [11, 25]), ([-1], [16, 17]), ([-1], [24, 25]), ([-1], [19, 21]), ([-1], [17, 18]), ([-1], [3, 10]), ([-1], [27, 28]), ([-1], [30, 31]), ([-1], [20, 21]), ([-1], [2, 9]), ([-1], [13, 14]), ([-1], [5, 6]), ([-1], [23, 24]), ([-1], [5, 7]), ([-1], [14, 15]), ([-1], [29, 30]), ([-1], [26, 31]), ([-1], [3, 12]), ([-1], [15, 16]), ([-1], [0, 4]), ([-1], [18, 19]), ([-1], [12, 13]), ([-1], [4, 6]), ([-1], [7, 29]), ([-1],[-1])],
                  [([14, 25], [15, 24]), ([23, 29], [24, 29]), ([0, 1], [9, 11]), ([28, 29], [28, 31])]]
 
-def test_rips_diagram2():
-    test = geoph.ripsPersistenceDiagram2(X)
+def test_rips_diagram2_unreduced():
+    test = geoph.ripsPersistenceDiagram2(X, reduced_homology=False)
     assert np.allclose(np.array(test[0]), np.array(diagram_0))
     assert np.allclose(np.array(test[1]), np.array(diagram_1_rips))
 
-def test_delrips_diagram2():
-    test = geoph.delaunayRipsPersistenceDiagram(X)
+def test_delrips_diagram2_unreduced():
+    test = geoph.delaunayRipsPersistenceDiagram(X, reduced_homology=False)
     assert np.allclose(np.array(test[0]), np.array(diagram_0))
     assert np.allclose(np.array(test[1]), np.array(diagram_1_delrips))
-def test_rips_pairs2():
-    assert geoph.ripsPersistencePairs2(X) == rips_pairs
+def test_rips_pairs2_unreduced():
+    assert geoph.ripsPersistencePairs2(X, reduced_homology=False) == rips_pairs
 
-def test_delrips_pairs2():
-    assert geoph.delaunayRipsPersistencePairs(X) == delrips_pairs
+def test_delrips_pairs2_unreduced():
+    assert geoph.delaunayRipsPersistencePairs(X, reduced_homology=False) == delrips_pairs
+
+def test_rips_diagram2_reduced():
+    test = geoph.ripsPersistenceDiagram2(X)
+    assert np.allclose(np.array(test[0]), np.array(diagram_0[:-1]))
+    assert np.allclose(np.array(test[1]), np.array(diagram_1_rips))
+
+def test_delrips_diagram2_reduced():
+    test = geoph.delaunayRipsPersistenceDiagram(X)
+    assert np.allclose(np.array(test[0]), np.array(diagram_0[:-1]))
+    assert np.allclose(np.array(test[1]), np.array(diagram_1_delrips))
+def test_rips_pairs2_reduced():
+    assert geoph.ripsPersistencePairs2(X) == [rips_pairs[0][:-1], rips_pairs[1]]
+
+def test_delrips_pairs2_reduced():
+    assert geoph.delaunayRipsPersistencePairs(X) == [delrips_pairs[0][:-1], delrips_pairs[1]]

@@ -10,7 +10,7 @@ It also contains the code for the planar Rips and Delaunay–Rips persistence al
 
 The following dependencies are required:
 * Boost >= 1.72
-* CGAL
+* CGAL >= 6.0
 * Eigen3
 
 For multi-threading, the following dependencies are additionally required:

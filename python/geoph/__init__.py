@@ -1,32 +1,36 @@
 from __future__ import annotations
 from .geoph_impl import *
 
-def delaunayRipsPersistenceDiagram(X, format:str='default') -> list[list[tuple[float, float]]] | list[tuple[int, tuple[float, float]]]:
+__version__ = "0.1.2"
+
+def delaunayRipsPersistenceDiagram(X, format:str='default', reduced_homology:bool=True) -> list[list[tuple[float, float]]] | list[tuple[int, tuple[float, float]]]:
     """
     Computes Delaunay-Rips persistence diagram.
 
     Args:
         X: an array with shape (*, *)
         format: 'default' or 'gudhi'
+        reduced_homology: if True, discards the 0-dimensional essential pair (0.0, inf)
 
     Returns:
         A list of list of points (birth,death) when format is 'default'
 
         A list of tuples (dim,(birth,death)) when format is 'gudhi'
     """
-    return geoph_impl.delaunayRipsPersistenceDiagram(X, format)
+    return geoph_impl.delaunayRipsPersistenceDiagram(X, format, reduced_homology)
 
-def delaunayRipsPersistencePairs(X) -> list[list[tuple[list[int], list[int]]]]:
+def delaunayRipsPersistencePairs(X, reduced_homology:bool=True) -> list[list[tuple[list[int], list[int]]]]:
     """
     Computes Delaunay-Rips persistence pairs.
 
     Args:
         X: an array with shape (*, *)
+        reduced_homology: if True, discards the 0-dimensional essential pair (0.0, inf)
 
     Returns:
         A list of list of simplex pairs (birthSimplex, deathSimplex)
     """
-    return geoph_impl.delaunayRipsPersistencePairs(X)
+    return geoph_impl.delaunayRipsPersistencePairs(X, reduced_homology)
 
 def delaunayRipsPersistenceGenerators2(X) -> list[tuple[list[tuple[int, int]], tuple[float, float]]]:
     """
@@ -60,25 +64,27 @@ def ripsPersistenceGenerators2(X) -> list[tuple[list[tuple[int, int]], tuple[flo
     """
     return geoph_impl.ripsPersistenceGenerators2(X)
 
-def ripsPersistenceDiagram2(X, format:str='default') -> list[list[tuple[float, float]]] | list[tuple[int, tuple[float, float]]]:
+def ripsPersistenceDiagram2(X, format:str='default', reduced_homology:bool=True) -> list[list[tuple[float, float]]] | list[tuple[int, tuple[float, float]]]:
     """
     Computes Rips persistence diagram for a point cloud in R^2.
     Args:
         X: an array with shape (*, *)
         format: 'default' or 'gudhi'
+        reduced_homology: if True, discards the 0-dimensional essential pair (0.0, inf)
     Returns:
         A list of list of points (birth,death) when format is 'default'
 
         A list of tuples (dim,(birth,death)) when format is 'gudhi'
     """
-    return geoph_impl.ripsPersistenceDiagram2(X, format)
+    return geoph_impl.ripsPersistenceDiagram2(X, format, reduced_homology)
 
-def ripsPersistencePairs2(X) -> list[list[tuple[list[int], list[int]]]]:
+def ripsPersistencePairs2(X, reduced_homology:bool=True) -> list[list[tuple[list[int], list[int]]]]:
     """
     Computes Rips persistence pairs for a point cloud in R^2.
     Args:
         X: an array with shape (*, *)
+        reduced_homology: if True, discards the 0-dimensional essential pair (0.0, inf)
     Returns:
         A list of list of simplex pairs (birthSimplex, deathSimplex)
     """
-    return geoph_impl.ripsPersistencePairs2(X)
+    return geoph_impl.ripsPersistencePairs2(X, reduced_homology)

@@ -339,7 +339,7 @@ namespace gph {
         return a.d < b.d;
       });
       UnionFind UF_p(N_p);
-      ph[0].reserve(N_p-1);
+      ph[0].reserve(N_p);
       for (FiltratedEdge const& e : urquhart) {
         if(UF_p.find(e.e.first) != UF_p.find(e.e.second)) { //we know e is a EMST edge
           UF_p.merge(e.e.first, e.e.second);
@@ -348,6 +348,7 @@ namespace gph {
         else
           critical1.emplace_back(e);
       }
+      ph[0].emplace_back(FiltratedSimplex{{-1}, 0.}, FiltratedSimplex{{-1}, inf}); //infinite pair
     }
 
     void compute1PH(MultidimensionalDiagram &ph) {
@@ -847,7 +848,7 @@ namespace gph {
         return a.d < b.d;
       });
       UnionFind UF_p(N_p);
-      ph[0].reserve(N_p-1);
+      ph[0].reserve(N_p);
       for (FiltratedEdge const& e : urquhart) {
         if(UF_p.find(e.e.first) != UF_p.find(e.e.second)) { //we know e is a EMST edge
           UF_p.merge(e.e.first, e.e.second);
@@ -856,6 +857,7 @@ namespace gph {
         else
           critical1.emplace_back(e);
       }
+      ph[0].emplace_back(FiltratedSimplex{{-1}, 0.}, FiltratedSimplex{{-1}, inf}); //infinite pair
     }
 
     void compute1PH(MultidimensionalDiagram &ph) {

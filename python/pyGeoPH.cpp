@@ -39,19 +39,21 @@ gph::Simplex sorted(gph::Simplex s) {
   return s;
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, MDPersistenceDiagram &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, MDPersistenceDiagram &output, bool reduced=true) {
   output.resize(diagram.size());
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     output[dim].reserve(diagram[dim].size());
-    for (auto const& [b,d] : diagram[dim])
-      output[dim].push_back({b.second, d.second});
+    for (auto const& [b,d] : diagram[dim]) {
+      if (d.second < gph::inf || !reduced)
+        output[dim].push_back({b.second, d.second});
+    }
     std::sort(output[dim].begin(), output[dim].end());
   }
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, MDContiguousPersistenceDiagram &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, MDContiguousPersistenceDiagram &output, bool reduced=true) {
   MDPersistenceDiagram temp;
-  convert(diagram, temp);
+  convert(diagram, temp, reduced);
   output.resize(diagram.size());
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     auto *data = new PersistenceDiagram(std::move(temp[dim]));
@@ -62,21 +64,23 @@ inline void convert(gph::MultidimensionalDiagram const& diagram, MDContiguousPer
   }
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, MDPersistencePairs &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, MDPersistencePairs &output, bool reduced=true) {
   output.resize(diagram.size());
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
     output[dim].reserve(diagram[dim].size());
     for (auto const& [b,d] : diagram[dim]) {
-      if (d.second < gph::inf)
+      if (d.second < gph::inf || !reduced)
         output[dim].emplace_back(sorted(b.first), sorted(d.first));
     }
   }
 }
 
-inline void convert(gph::MultidimensionalDiagram const& diagram, GudhiPersistenceDiagram &output) {
+inline void convert(gph::MultidimensionalDiagram const& diagram, GudhiPersistenceDiagram &output, bool reduced=true) {
   for (unsigned dim = 0; dim < diagram.size(); ++dim) {
-    for (auto const& [b,d] : diagram[dim])
-      output.emplace_back(dim, std::make_pair(b.second, d.second));
+    for (auto const& [b,d] : diagram[dim]) {
+      if (d.second < gph::inf || !reduced)
+        output.emplace_back(dim, std::make_pair(b.second, d.second));
+    }
   }
   std::sort(output.begin(), output.end(), [](GudhiPersistenceDiagramPoint const& a, GudhiPersistenceDiagramPoint const& b) {
     return a.second < b.second;
@@ -110,18 +114,18 @@ public:
   }
 
   template <typename Diagram>
-  [[nodiscard]] Diagram get() const {
+  [[nodiscard]] Diagram get(bool reduced_homology = true) const {
     Diagram res(0);
-    convert(diagram, res);
+    convert(diagram, res, reduced_homology);
     return res;
   }
 
-  [[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> getPersistenceDiagram(std::string const& format) const {
+  [[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> getPersistenceDiagram(std::string const& format, bool reduced_homology = true) const {
     if (format == "gudhi")
-      return get<GudhiPersistenceDiagram>();
+      return get<GudhiPersistenceDiagram>(reduced_homology);
     if (format == "contiguous")
-      return get<MDContiguousPersistenceDiagram>();
-    return get<MDPersistenceDiagram>();
+      return get<MDContiguousPersistenceDiagram>(reduced_homology);
+    return get<MDPersistenceDiagram>(reduced_homology);
   }
 
 private:
@@ -129,7 +133,7 @@ private:
 };
 
 template <typename Diagram>
-Diagram delaunayRipsPersistence(PointCloudD const& pc) {
+Diagram delaunayRipsPersistence(PointCloudD const& pc, bool reduced_homology = true) {
   gph::MultidimensionalDiagram diagram;
   {
     nb::gil_scoped_release release;
@@ -143,20 +147,20 @@ Diagram delaunayRipsPersistence(PointCloudD const& pc) {
       findDimension(pc, diagram);
   }
   Diagram res(0);
-  convert(diagram, res);
+  convert(diagram, res, reduced_homology);
   return res;
 }
 
-[[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> delaunayRipsPersistenceDiagram(PointCloudD const& pc, std::string const& format) {
+[[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> delaunayRipsPersistenceDiagram(PointCloudD const& pc, std::string const& format, bool reduced_homology = true) {
   if (format == "gudhi")
-    return delaunayRipsPersistence<GudhiPersistenceDiagram>(pc);
+    return delaunayRipsPersistence<GudhiPersistenceDiagram>(pc, reduced_homology);
   if (format == "contiguous")
-    return delaunayRipsPersistence<MDContiguousPersistenceDiagram>(pc);
-  return delaunayRipsPersistence<MDPersistenceDiagram>(pc);
+    return delaunayRipsPersistence<MDContiguousPersistenceDiagram>(pc, reduced_homology);
+  return delaunayRipsPersistence<MDPersistenceDiagram>(pc, reduced_homology);
 }
 
 template <typename Diagram>
-Diagram ripsPersistence2(PointCloud2 const& pc) {
+Diagram ripsPersistence2(PointCloud2 const& pc, bool reduced_homology = true) {
   gph::MultidimensionalDiagram diagram;
   {
     nb::gil_scoped_release release;
@@ -164,16 +168,16 @@ Diagram ripsPersistence2(PointCloud2 const& pc) {
     frpd.computeRips0And1Persistence(diagram);
   }
   Diagram res(0);
-  convert(diagram, res);
+  convert(diagram, res, reduced_homology);
   return res;
 }
 
-[[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> ripsPersistenceDiagram2(PointCloud2 const& pc, std::string const& format) {
+[[nodiscard]] std::variant<MDPersistenceDiagram, GudhiPersistenceDiagram, MDContiguousPersistenceDiagram> ripsPersistenceDiagram2(PointCloud2 const& pc, std::string const& format, bool reduced_homology = true) {
   if (format == "gudhi")
-    return ripsPersistence2<GudhiPersistenceDiagram>(pc);
+    return ripsPersistence2<GudhiPersistenceDiagram>(pc, reduced_homology);
   if (format == "contiguous")
-    return ripsPersistence2<MDContiguousPersistenceDiagram>(pc);
-  return ripsPersistence2<MDPersistenceDiagram>(pc);
+    return ripsPersistence2<MDContiguousPersistenceDiagram>(pc, reduced_homology);
+  return ripsPersistence2<MDPersistenceDiagram>(pc, reduced_homology);
 }
 
 Generators1 delaunayRipsPersistenceGenerators2(PointCloud2 const& pc) {
@@ -210,11 +214,13 @@ NB_MODULE(geoph_impl, m) {
   m.def("ripsPersistenceDiagram2",
         &ripsPersistenceDiagram2,
         "X"_a,
-        "format"_a = "default");
+        "format"_a = "default",
+        "reduced_homology"_a = true);
 
   m.def("ripsPersistencePairs2",
         &ripsPersistence2<MDPersistencePairs>,
-        "X"_a);
+        "X"_a,
+        "reduced_homology"_a = true);
 
   m.def("ripsPersistenceGenerators2",
         &ripsPersistenceGenerators2,
@@ -234,14 +240,23 @@ NB_MODULE(geoph_impl, m) {
   m.def("delaunayRipsPersistenceDiagram",
         &delaunayRipsPersistenceDiagram,
         "X"_a,
-        "format"_a = "default");
+        "format"_a = "default",
+        "reduced_homology"_a = true);
 
   m.def("delaunayRipsPersistencePairs",
         &delaunayRipsPersistence<MDPersistencePairs>,
-        "X"_a);
+        "X"_a,
+        "reduced_homology"_a = true);
 
   nb::class_<GeoPHD>(m, "GeoPHD")
-      .def(nb::init<PointCloudD>(), "X"_a, nb::call_guard<nb::gil_scoped_release>())
-      .def("delaunayRipsPersistenceDiagram", &GeoPHD::getPersistenceDiagram, "format"_a="default")
-      .def("delaunayRipsPersistencePairs", &GeoPHD::get<MDPersistencePairs>);
+      .def(nb::init<PointCloudD>(),
+        "X"_a,
+        nb::call_guard<nb::gil_scoped_release>())
+      .def("delaunayRipsPersistenceDiagram",
+        &GeoPHD::getPersistenceDiagram,
+        "format"_a="default",
+        "reduced_homology"_a = true)
+      .def("delaunayRipsPersistencePairs",
+        &GeoPHD::get<MDPersistencePairs>,
+        "reduced_homology"_a = true);
 }

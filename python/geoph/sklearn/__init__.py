@@ -12,6 +12,9 @@ class DelaunayRipsPersistence(BaseEstimator, TransformerMixin):
     homology_dimensions : list
         The returned persistence diagrams dimensions.
 
+    reduced_homology : bool, default=True
+        If True, discards the 0-dimensional essential pair (0.0, inf).
+
     n_jobs : int, default=-1
         Number of parallel workers.
 
@@ -26,15 +29,16 @@ class DelaunayRipsPersistence(BaseEstimator, TransformerMixin):
         One persistence diagram per input point cloud.
     """
 
-    def __init__(self, homology_dimensions, n_jobs=-1):
+    def __init__(self, homology_dimensions, reduced_homology=True, n_jobs=-1):
         self.homology_dimensions = homology_dimensions
+        self.reduced_homology = reduced_homology
         self.n_jobs = n_jobs
 
     def fit(self, X, y=None):
         return self
 
     def __transform(self, x):
-        diags = delaunayRipsPersistenceDiagram(x, "contiguous")
+        diags = delaunayRipsPersistenceDiagram(x, "contiguous", self.reduced_homology)
         return [diags[d] for d in self.homology_dimensions]
 
     def transform(self, X):
