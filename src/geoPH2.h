@@ -87,6 +87,15 @@ namespace gph {
       }
       ph[0].emplace_back(FiltratedSimplex{{-1}, 0.}, FiltratedSimplex{{-1}, inf}); //infinite pair
 
+      for (FiltratedQuadEdge &e : urquhart) {
+        e.f1 = UF.find(e.f1); //final path compression
+        e.f2 = UF.find(e.f2); //final path compression
+      }
+      for (FiltratedQuadEdge &e : critical) {
+        e.f1 = UF.find(e.f1); //final path compression
+        e.f2 = UF.find(e.f2); //final path compression
+      }
+
       compute1PH(critical, UF, ph);
     }
 
@@ -153,7 +162,7 @@ namespace gph {
       std::vector<Generator1> generators_(N_polys);
       for (unsigned i=0; i<death_poly.size(); ++i)
         generators_[i].second = {birth_poly[i], death_poly[i].d};
-      for (const FiltratedQuadEdge &e : rng) {
+      for (const FiltratedQuadEdge &e : (N_polys == N_f) ? urquhart : rng) {
         if (e.f1 != e.f2) {
           if(death_poly[e.f1].d != inf)
             generators_[e.f1].first.push_back(e.e);
